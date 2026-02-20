@@ -1,0 +1,9 @@
+fairscale
+transformers
+sentence-transformers
+numpy
+matplotlib
+pycocotools
+scipy
+shapely
+terminaltables

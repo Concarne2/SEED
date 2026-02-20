@@ -1,0 +1,13 @@
+include README.md
+include LICENSE
+include INSTALL.md
+include requirements.txt
+
+# Include all config files and metafiles
+recursive-include mmdet/configs *.py *.yml *.yaml *.md *.json *.png *.jpg
+recursive-include mmdet/.mim *
+
+# Include model index
+include mmdet/model-index.yml
+include mmdet/*.yml
+include mmdet/*.yaml
