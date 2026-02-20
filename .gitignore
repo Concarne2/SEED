@@ -1,0 +1,13 @@
+.vscode/
+
+# Python packaging
+*.egg-info/
+
+# Optional data (downloaded separately)
+test_images/
+*.tar.gz
+*.zip
+*.json
+*.jpg
+*.png
+*.pyc
