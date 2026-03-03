@@ -14,17 +14,14 @@ from sentence_transformers import SentenceTransformer
 # EffNet evaluation code brought from MindEyeV2
 def eval_effnet(recon_img_dir, gt_img_dir):
 
-    recon_paths = []
-    for name in os.listdir(recon_img_dir):
-        path = os.path.join(recon_img_dir, name)
-        recon_paths.append(path)
-    recon_paths = sorted(recon_paths, key=lambda x: os.path.basename(x))
-
-    gt_paths = []
-    for name in os.listdir(gt_img_dir):
-        path = os.path.join(gt_img_dir, name)
-        gt_paths.append(path)
-    gt_paths = sorted(gt_paths, key=lambda x: os.path.basename(x))
+    recon_paths = sorted(
+        [os.path.join(recon_img_dir, name) for name in os.listdir(recon_img_dir)],
+        key=lambda x: os.path.basename(x),
+    )
+    gt_paths = sorted(
+        [os.path.join(gt_img_dir, name) for name in os.listdir(gt_img_dir)],
+        key=lambda x: os.path.basename(x),
+    )
 
     def load_images(paths):
         images = []
@@ -62,27 +59,9 @@ def eval_object_f1(recon_detection_dir, gt_detection_dir, thresholds = None, det
     if thresholds is None:
         thresholds = np.arange(0.05, 0.95, 0.05)
     
-
-    # recon_paths = []
-    # for name in os.listdir(os.path.join(recon_detection_dir, "preds")):
-    #     path = os.path.join(recon_detection_dir, "preds", name)
-    #     recon_paths.append(path)
-    # recon_paths = sorted(recon_paths, key=lambda x: os.path.basename(x))
-
-    # gt_paths = []
-    # for name in os.listdir(os.path.join(gt_detection_dir, "preds")):
-    #     path = os.path.join(gt_detection_dir, "preds", name)
-    #     gt_paths.append(path)
-    # gt_paths = sorted(gt_paths, key=lambda x: os.path.basename(x))
-
     img_list = os.listdir(os.path.join(recon_detection_dir, "preds"))
     img_list = sorted(img_list, key=lambda x: int(x.split('.')[0]))
 
-    # if '_' in img_list[0]:
-    #     img_list = sorted(img_list, key=lambda x: int(x.split('_')[0]))
-    # else:
-        # img_list = sorted(img_list, key=lambda x: int(x.split('.')[0]))
-        
     recall_list_all = []
     precision_list_all = []
 
@@ -190,56 +169,73 @@ def eval_object_f1(recon_detection_dir, gt_detection_dir, thresholds = None, det
 
 def eval_cap_sim(recon_img_dir, gt_img_dir):
 
-    recon_paths = []
-    for name in os.listdir(recon_img_dir):
-        path = os.path.join(recon_img_dir, name)
-        recon_paths.append(path)
-    recon_paths = sorted(recon_paths, key=lambda x: os.path.basename(x))
+    recon_paths = sorted(
+        [os.path.join(recon_img_dir, name) for name in os.listdir(recon_img_dir)],
+        key=lambda x: os.path.basename(x),
+    )
+    gt_paths = sorted(
+        [os.path.join(gt_img_dir, name) for name in os.listdir(gt_img_dir)],
+        key=lambda x: os.path.basename(x),
+    )
 
-    gt_paths = []
-    for name in os.listdir(gt_img_dir):
-        path = os.path.join(gt_img_dir, name)
-        gt_paths.append(path)
-    gt_paths = sorted(gt_paths, key=lambda x: os.path.basename(x))
-
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    caption_model_dtype = torch.float32
     processor = AutoProcessor.from_pretrained("microsoft/git-large-coco")
-    model = AutoModelForCausalLM.from_pretrained("microsoft/git-large-coco")
+    caption_model = AutoModelForCausalLM.from_pretrained(
+        "microsoft/git-large-coco",
+        torch_dtype=caption_model_dtype,
+    ).to(device)
+    caption_model.eval()
 
-    recon_captions = {}
-    for img_path in recon_paths:
-        image = Image.open(img_path).convert("RGB")
-        image_id = os.path.basename(img_path)
-        
-        pixel_values = processor(images=image, return_tensors="pt").pixel_values
+    def _generate_captions(paths, batch_size=16):
+        captions = {}
+        for start_idx in range(0, len(paths), batch_size):
+            batch_paths = paths[start_idx:start_idx + batch_size]
+            batch_ids = [os.path.basename(path) for path in batch_paths]
+            batch_images = []
+            for path in batch_paths:
+                with Image.open(path) as img:
+                    batch_images.append(img.convert("RGB"))
 
-        generated_ids = model.generate(pixel_values=pixel_values, max_length=50)
-        generated_caption = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        recon_captions[image_id] = generated_caption
-    
-    gt_captions = {}
-    for img_path in gt_paths:
-        image = Image.open(img_path).convert("RGB")
-        image_id = os.path.basename(img_path)
-        
-        pixel_values = processor(images=image, return_tensors="pt").pixel_values
+            pixel_values = processor(images=batch_images, return_tensors="pt").pixel_values
+            pixel_values = pixel_values.to(device)
 
-        generated_ids = model.generate(pixel_values=pixel_values, max_length=50)
-        generated_caption = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        gt_captions[image_id] = generated_caption
+            with torch.inference_mode():
+                generated_ids = caption_model.generate(
+                    pixel_values=pixel_values,
+                    max_new_tokens=50,
+                )
 
-    # Load a pretrained Sentence Transformer model
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+            batch_captions = processor.batch_decode(generated_ids, skip_special_tokens=True)
+            for image_id, caption in zip(batch_ids, batch_captions):
+                captions[image_id] = caption
+        return captions
+
+    recon_captions = _generate_captions(recon_paths)
+    gt_captions = _generate_captions(gt_paths)
+
     common_image_ids = sorted(set(gt_captions.keys()) & set(recon_captions.keys()))
     if len(common_image_ids) == 0:
         raise ValueError("No matching image filenames found between GT and reconstruction inputs.")
 
-    cossims = []
-    for image_id in common_image_ids:
-        gt_cap = gt_captions[image_id]
-        subj1_cap = recon_captions[image_id]
-        # 2. Calculate embeddings by calling model.encode()
-        embeddings = model.encode([gt_cap, subj1_cap])
-        # 3. Calculate the embedding similarities
-        similarities = model.similarity(embeddings, embeddings)
-        cossims.append(similarities[0][1].item())
-    return recon_captions, gt_captions, np.array(cossims)
+    gt_texts = [gt_captions[image_id] for image_id in common_image_ids]
+    recon_texts = [recon_captions[image_id] for image_id in common_image_ids]
+
+    text_model = SentenceTransformer("all-MiniLM-L6-v2", device=device)
+    gt_embeddings = text_model.encode(
+        gt_texts,
+        batch_size=128,
+        show_progress_bar=False,
+        convert_to_numpy=True,
+        normalize_embeddings=True,
+    )
+    recon_embeddings = text_model.encode(
+        recon_texts,
+        batch_size=128,
+        show_progress_bar=False,
+        convert_to_numpy=True,
+        normalize_embeddings=True,
+    )
+
+    cossims = np.sum(gt_embeddings * recon_embeddings, axis=1)
+    return recon_captions, gt_captions, cossims

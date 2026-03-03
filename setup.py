@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="SEED",
+    name="seed",
     version="1.0.0",
     author="Juhyeon Park, Peter Yongho Kim",
     author_email="peterkim98@snu.ac.kr", 
@@ -48,6 +48,7 @@ setup(
         "scipy",
         "shapely",
         "terminaltables",
+        "wandb",
     ],
     extras_require={
         "dev": [
