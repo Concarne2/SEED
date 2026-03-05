@@ -43,9 +43,6 @@ mim install mmcv
 # Install SEED package in editable mode
 pip install -e .
 
-# Download Grounding DINO checkpoint (required for detection)
-# This links to the MM-Grounding-DINO-L model. For more information, see https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md
-wget https://download.openmmlab.com/mmdetection/v3.0/mm_grounding_dino/grounding_dino_swin-l_pretrain_all/grounding_dino_swin-l_pretrain_all-56d69e78.pth
 ```
 
 If you prefer, you can run the provided setup script instead (you may need to change the pytorch installation line):
@@ -54,7 +51,15 @@ If you prefer, you can run the provided setup script instead (you may need to ch
 bash installation.sh
 ```
 
-### 2.2 Run Full Evaluation 
+### 2.2 Download Pre-trained Grounding Model
+Download the Grounding DINO checkpoint (required for detection).
+This links to the MM-Grounding-DINO-L model. For more information, see https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md
+
+```
+wget https://download.openmmlab.com/mmdetection/v3.0/mm_grounding_dino/grounding_dino_swin-l_pretrain_all/grounding_dino_swin-l_pretrain_all-56d69e78.pth
+```
+
+### 2.3 Run Full Evaluation 
 ```bash
 bash seed_evaluation.sh
 ```
@@ -152,14 +157,36 @@ The final score is the average of the three components:
 SEED = (Object F1 + Cap-Sim + EffNet) / 3
 ```
 
-## 5. Minor Notes
+## 5. (Optional) Download Human Survey Results
+We provide our collected human survey results for researchers interested in developing new evaluation metrics and plan to use the survey results to meta-evaluate different evaluation metrics.
+
+Download and unzip the data:
+```
+wget https://github.com/Concarne2/SEED/releases/download/v1.0.0/human_eval_data.tar.gz
+tar -xzf human_eval_data.tar.gz
+```
+
+This release contains the human survey results and related data, including the image files used for the survey, our evaluation results for those images, and the suggested usage of the survey results.
+
+### Included files
+
+- `250131_final.csv`  raw survey responses
+- `images/`  paired image sets
+  - `images/gt/` (1000 PNGs)
+  - `images/recon/` (1000 PNGs, filename-matched to `gt`)
+- `eval_metrics.npz`  precomputed metric arrays for 1000 items
+  - Keys: `pixcorr`, `ssim`, `alexnet2`, `alexnet5`, `inception`, `clip`, `effnet`, `swav`, `obj_f1`, `git_st`
+- `survey_analysis.ipynb`: suggested survey analysis notebook
+- `dataset.py`, `tau_optimization.py`: metric/correlation utilities used by the notebook. These utilities are adopted from the t2v_metrics repro: https://github.com/linzhiqiu/t2v_metrics
+
+## 6. Minor Notes
 
 - Minor numeric differences can appear across hardware/software stacks (especially GPU/CUDA combinations).
 - Therefore when comparing models, run all evaluations in the same environment whenever possible.
 
-## 6. Citation and License
+## 7. Citation and License
 
-### 6.1 Citation
+### 7.1 Citation
 If you use this repository, please cite:
 
 ```bibtex
