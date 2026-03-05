@@ -1,5 +1,5 @@
-RECON_IMAGE_PATH='human_eval_data/images_test/gt'
-GT_IMAGE_PATH='human_eval_data/images_test/recon'
+RECON_IMAGE_PATH='path/to/recon/images'
+GT_IMAGE_PATH='path/to/gt/images'
 CONFIG_PATH='mmdet/configs/mm_grounding_dino/grounding_dino_swin-l_pretrain_all.py'
 WEIGHTS_PATH='grounding_dino_swin-l_pretrain_all-56d69e78.pth'
 DECODING_MODEL_NAME='test_model'
@@ -25,4 +25,8 @@ python recon_evaluation.py \
         --recon-img-dir $RECON_IMAGE_PATH \
         --gt-img-dir $GT_IMAGE_PATH \
         --model-name $DECODING_MODEL_NAME \
-        --intermediate-results-dir "evaluations/$DECODING_MODEL_NAME/intermediate_results" \
+        --intermediate-results-dir "evaluations/$DECODING_MODEL_NAME/intermediate_results" 
+
+# add optional wandb arguments if needed
+# --wandb-project "your-project-name" \
+# --wandb-run-name "your-run-name" \
