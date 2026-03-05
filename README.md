@@ -184,20 +184,6 @@ This release contains the human survey results and related data, including the i
 - Minor numeric differences can appear across hardware/software stacks (especially GPU/CUDA combinations).
 - Therefore when comparing models, run all evaluations in the same environment whenever possible.
 
-## 7. Citation and License
-
-### 7.1 Citation
-If you use this repository, please cite:
-
-```bibtex
-@inproceedings{park2026seed,
-  title={SEED: Towards More Accurate Semantic Evaluation for Visual Brain Decoding},
-  author={Park, Juhyeon and Kim, Peter Yongho and Cha, Jiook and Yoo, Shinjae and Moon, Taesup},
-  booktitle={International Conference on Learning Representations (ICLR)},
-  year={2026}
-}
-```
-
-### 6.2 License
+## 7. License
 This project is released under the Apache 2.0 License.
 See `LICENSE` for details.
