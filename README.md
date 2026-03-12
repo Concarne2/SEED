@@ -4,6 +4,8 @@ Official implementation of **SEED: Towards More Accurate Semantic Evaluation for
 <div align="center">
 
 [![arXiv](https://img.shields.io/badge/arXiv-2503.06437-brown?logo=arxiv&style=flat-square)](https://arxiv.org/abs/2503.06437)
+&nbsp;
+[![Project Page](https://img.shields.io/badge/Project%20Page-0A7B83?style=flat-square)](https://concarne2.github.io/seed_project_page/)
 
 </div>
 
