@@ -189,3 +189,16 @@ This release contains the human survey results and related data, including the i
 ## 7. License
 This project is released under the Apache 2.0 License.
 See `LICENSE` for details.
+
+## Citation
+If you find this work is useful, please cite.
+```
+@inproceedings{
+park2026seed,
+title={{SEED}: Towards More Accurate Semantic Evaluation for Visual Brain Decoding},
+author={Juhyeon Park and Peter Yongho Kim and Jiook Cha and Shinjae Yoo and Taesup Moon},
+booktitle={The Fourteenth International Conference on Learning Representations},
+year={2026},
+url={https://openreview.net/forum?id=JV1eUVA6W7}
+}
+```
