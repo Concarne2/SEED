@@ -181,24 +181,6 @@ This release contains the human survey results and related data, including the i
 - `survey_analysis.ipynb`: suggested survey analysis notebook
 - `dataset.py`, `tau_optimization.py`: metric/correlation utilities used by the notebook. These utilities are adopted from the t2v_metrics repro: https://github.com/linzhiqiu/t2v_metrics
 
-## 6. Minor Notes
-
-- Minor numeric differences can appear across hardware/software stacks (especially GPU/CUDA combinations).
-- Therefore when comparing models, run all evaluations in the same environment whenever possible.
-
-## 7. License
+## 6. License
 This project is released under the Apache 2.0 License.
 See `LICENSE` for details.
-
-## Citation
-If you find this work is useful, please cite.
-```
-@inproceedings{
-park2026seed,
-title={{SEED}: Towards More Accurate Semantic Evaluation for Visual Brain Decoding},
-author={Juhyeon Park and Peter Yongho Kim and Jiook Cha and Shinjae Yoo and Taesup Moon},
-booktitle={The Fourteenth International Conference on Learning Representations},
-year={2026},
-url={https://openreview.net/forum?id=JV1eUVA6W7}
-}
-```
